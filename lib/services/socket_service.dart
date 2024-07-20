@@ -11,31 +11,35 @@ enum ServerStatus{
 
 class SocketService with ChangeNotifier{
   ServerStatus _serverStatus = ServerStatus.Connecting;
+  IO.Socket? _socket;
 
-  get serverStatus => _serverStatus;
+  ServerStatus get serverStatus => _serverStatus;
+  IO.Socket get socket => _socket!;
+
+  Function get emit => _socket!.emit;
 
   SocketService(){
     _initConfig();
   }
 
   void _initConfig(){
-    IO.Socket socket = IO.io('http://localhost:3000/', {
+    _socket = IO.io('http://localhost:3000/', {
       'transports': ['websocket'],
       'autoConnect': true
     });
 
-    socket.onConnect((_) {
+    _socket!.onConnect((_) {
       _serverStatus = ServerStatus.Online;
       notifyListeners();
     });
 
-    socket.onDisconnect((_) {
+    _socket!.onDisconnect((_) {
       _serverStatus = ServerStatus.Offline;
       notifyListeners();
     });
 
-    socket.on('nuevo-mensaje', (payload) {
-      log("NUEVO MENSAJE -> $payload");
-    });
+    //socket.on('nuevo-mensaje', (payload) {
+      //log("NUEVO MENSAJE -> $payload");
+    //});
   }
 }
