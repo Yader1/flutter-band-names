@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -12,6 +10,8 @@ enum ServerStatus{
 class SocketService with ChangeNotifier{
   ServerStatus _serverStatus = ServerStatus.Connecting;
 
+  get serverStatus => _serverStatus;
+
   SocketService(){
     _initConfig();
   }
@@ -23,9 +23,13 @@ class SocketService with ChangeNotifier{
     });
 
     socket.onConnect((_) {
-      log('connect');
+      _serverStatus = ServerStatus.Online;
+      notifyListeners();
     });
 
-    socket.onDisconnect((_) => log('disconnect'));
+    socket.onDisconnect((_) {
+      _serverStatus = ServerStatus.Offline;
+      notifyListeners();
+    });
   }
 }
